@@ -1,76 +1,75 @@
-# Mask Unfolder - Accordion Fold Pattern Generator
-
-Convert any folded mask design into print-ready unfolded patterns for manufacturers.
+# Mask Unfolder
 
 **Live App**: [https://maskfolder.app](https://maskfolder.app)
 
-## 🚀 Quick Start
+Convert folded mask designs into print-ready unfolded patterns. Solves the accordion fold geometry problem for pleated face masks.
 
-Simply open [https://maskfolder.app](https://maskfolder.app) in your browser and start uploading images. No installation required!
+## The Problem
 
-### Running Locally
+Pleated face masks use accordion folds to compress vertically. When you design a pattern for printing:
 
-Since this is a pure HTML/CSS/JavaScript app, you can:
+- What you see when the mask is **folded** must be split across multiple sections when **unfolded**
+- Some sections get hidden inside the folds
+- The pattern must be pre-distorted to look correct when folded
 
-1. **Open directly in browser**
-   ```bash
-   open index.html
-   ```
+This app automatically handles that transformation.
 
-2. **Or use a local server** (optional)
-   ```bash
-   # Python 3
-   python -m http.server 8000
+## How to Use
 
-   # Node.js
-   npx serve
-   ```
+1. **Upload your design** - The image of what you want to appear on the folded mask (recommended: 500×250px)
+2. **Preview** - See how it will be split across the unfolded pattern
+3. **Download** - Get a print-ready 300 DPI file (2066×2244px) for manufacturers
 
-   Then visit `http://localhost:8000`
+The output is sized for standard pleated masks: **175mm wide × 190mm tall** when unfolded.
 
-## 📦 What It Does
+## The Geometry
 
-- Upload folded mask image (500×250px recommended)
-- Generates unfolded pattern with accordion geometry
-  - 7 rows total
-  - Rows 1, 2, 4, 6, 7 visible when folded
-  - Rows 3, 5 hidden (mirrored and tucked under)
-- Downloads print-ready 300 DPI file (2066×2244px for 175mm×190mm)
+The app distributes your design across **7 rows**:
 
-## 🎯 For Manufacturers
+| Row | Type | Source |
+|-----|------|--------|
+| Row 1 | Visible | Top of your design (section 0) |
+| Row 2 | Visible | Second section (section 1) |
+| Row 3 | Hidden | **Mirrored copy of row 2** |
+| Row 4 | Visible | Third section (section 2) |
+| Row 5 | Hidden | **Mirrored copy of row 4** |
+| Row 6 | Visible | Fourth section (section 3) |
+| Row 7 | Visible | Bottom section (section 4) |
 
-The output file is ready to print on flat mask material. When accordion-folded with pleats between rows 2-3 and 4-5, the original design appears perfectly on the folded mask.
+### Why Mirroring?
 
-## 🛠️ Tech Stack
+When the mask folds accordion-style, rows 3 and 5 fold backwards (creating a Z-shape). Mirroring these sections ensures the pattern looks continuous even though they face the opposite direction.
 
-- Pure HTML/CSS/JavaScript (no build step!)
-- Canvas API for client-side image processing
-- Responsive design with cyberpunk aesthetic
-- Hosted on GitHub Pages
+### The Fold Pattern
 
-## 🌐 Deployment
+- **Unfolded**: 7 rows total, 175mm × 190mm
+- **Folded**: 5 visible sections, 175mm × ~65mm
+- **Hidden rows**: Rows 3 and 5 (tucked into the accordion pleats)
+- **Pleats occur**: Between rows 2-3 and rows 4-5
 
-This app is deployed on GitHub Pages and accessible at [https://maskfolder.app](https://maskfolder.app).
+## For Manufacturers
 
-### Deploy Your Own Copy
+The downloaded file is ready to print on flat mask material at 300 DPI. When accordion-folded with pleats in the specified locations, the original design will appear correctly on the folded mask.
 
-1. **Fork this repository** on GitHub
+Standard mask specs:
+- Material: Printed flat, then pleated
+- Two horizontal accordion pleats
+- Ear loop attachment areas at sides (not affected by pattern)
 
-2. **Enable GitHub Pages**
-   - Go to Settings → Pages
-   - Select `main` branch and `/` (root) folder
-   - Click Save
+## Technical Details
 
-3. **Your site will be live** at `https://yourusername.github.io/adversarial-mask-unfolder`
+- **Pure HTML/CSS/JavaScript** - Works entirely in your browser, no server needed
+- **Canvas API** - Client-side image processing and manipulation
+- **No build step** - Single HTML file with embedded styles and scripts
+- **Privacy-first** - Your images never leave your device
 
-### Custom Domain (Optional)
+## Related Research
 
-To use your own domain:
+This app is based on the accordion fold geometry from adversarial mask research:
 
-1. Add a `CNAME` file with your domain name
-2. Configure DNS A records to point to GitHub Pages:
-   - `185.199.108.153`
-   - `185.199.109.153`
-   - `185.199.110.153`
-   - `185.199.111.153`
-3. Enable HTTPS in GitHub Pages settings
+- **Paper**: "Adversarial Mask: Real-World Universal Adversarial Attack on Face Recognition Models"
+- **ArXiv**: [2111.10759](https://arxiv.org/abs/2111.10759)
+- **Authors**: Zolfi, Avidan, Elovici, Shabtai
+- **GitHub**: [AlonZolfi/AdversarialMask](https://github.com/AlonZolfi/AdversarialMask)
+
+The fold pattern was reverse-engineered from actual mask manufacturer specifications.
