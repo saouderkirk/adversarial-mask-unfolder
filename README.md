@@ -1,7 +1,5 @@
 # Mask Unfolder
 
-**Live App**: [https://maskfolder.app](https://maskfolder.app)
-
 Convert folded mask designs into print-ready unfolded patterns. Solves the accordion fold geometry problem for pleated face masks.
 
 ## The Problem
