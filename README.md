@@ -2,37 +2,31 @@
 
 Convert any folded mask design into print-ready unfolded patterns for manufacturers.
 
-## 🚀 Deploy to Railway
+**Live App**: [https://maskfolder.app](https://maskfolder.app)
 
-### Quick Deploy
+## 🚀 Quick Start
 
-1. **Push to GitHub**
+Simply open [https://maskfolder.app](https://maskfolder.app) in your browser and start uploading images. No installation required!
+
+### Running Locally
+
+Since this is a pure HTML/CSS/JavaScript app, you can:
+
+1. **Open directly in browser**
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin your-repo-url
-   git push -u origin main
+   open index.html
    ```
 
-2. **Connect to Railway**
-   - Go to [railway.app](https://railway.app)
-   - Click "New Project" → "Deploy from GitHub repo"
-   - Select this repository
-   - Railway auto-detects Node.js and deploys!
+2. **Or use a local server** (optional)
+   ```bash
+   # Python 3
+   python -m http.server 8000
 
-3. **Get your domain**
-   - Railway gives you a free domain: `your-app.up.railway.app`
-   - Or add a custom domain in settings
+   # Node.js
+   npx serve
+   ```
 
-### Local Development
-
-```bash
-npm install
-npm start
-```
-
-Visit `http://localhost:3000`
+   Then visit `http://localhost:8000`
 
 ## 📦 What It Does
 
@@ -50,15 +44,33 @@ The output file is ready to print on flat mask material. When accordion-folded w
 ## 🛠️ Tech Stack
 
 - Pure HTML/CSS/JavaScript (no build step!)
-- Express.js server for Railway deployment
-- Canvas API for image processing
-- Responsive design
+- Canvas API for client-side image processing
+- Responsive design with cyberpunk aesthetic
+- Hosted on GitHub Pages
 
-## 💡 Alternative Hosting
+## 🌐 Deployment
 
-If you don't need a custom domain immediately, consider:
-- **Netlify**: Drag & drop HTML file → instant deployment
-- **Vercel**: Great for static sites
-- **GitHub Pages**: Free with GitHub repo
+This app is deployed on GitHub Pages and accessible at [https://maskfolder.app](https://maskfolder.app).
 
-Railway is excellent if you plan to add backend features later!
+### Deploy Your Own Copy
+
+1. **Fork this repository** on GitHub
+
+2. **Enable GitHub Pages**
+   - Go to Settings → Pages
+   - Select `main` branch and `/` (root) folder
+   - Click Save
+
+3. **Your site will be live** at `https://yourusername.github.io/adversarial-mask-unfolder`
+
+### Custom Domain (Optional)
+
+To use your own domain:
+
+1. Add a `CNAME` file with your domain name
+2. Configure DNS A records to point to GitHub Pages:
+   - `185.199.108.153`
+   - `185.199.109.153`
+   - `185.199.110.153`
+   - `185.199.111.153`
+3. Enable HTTPS in GitHub Pages settings
