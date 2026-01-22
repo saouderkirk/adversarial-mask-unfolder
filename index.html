@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mask Unfolder - Generate Print-Ready Files</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --border: #333;
+            --accent: #00ff88;
+            --accent-dim: #00aa55;
+            --text: #e0e0e0;
+            --text-dim: #888;
+        }
+        
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 136, 0.03) 2px, rgba(0, 255, 136, 0.03) 4px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--accent);
+        }
+        
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+        }
+        
+        .panel-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 255, 136, 0.02);
+        }
+        
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(0, 255, 136, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .upload-zone.dragover {
+            border-color: var(--accent);
+            background: rgba(0, 255, 136, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .preview-container {
+            margin-top: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .preview-container.empty {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            font-weight: 700;
+        }
+        
+        .btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            border-color: var(--border);
+            color: var(--text);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+            border-color: var(--text);
+            color: var(--text);
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .info-item {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1rem;
+        }
+        
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        
+        .instructions {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .instructions h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .instructions ol {
+            margin-left: 1.5rem;
+            color: var(--text-dim);
+        }
+        
+        .instructions li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        canvas {
+            display: none;
+        }
+        
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Mask Unfolder ⚡</h1>
+            <p class="subtitle">Accordion Fold Pattern Generator</p>
+        </header>
+        
+        <div class="main-grid">
+            <div class="panel">
+                <h2 class="panel-title">📸 Input: Folded Mask</h2>
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">⬆️</div>
+                    <p style="margin-bottom: 0.5rem; font-weight: 700;">Drop your folded mask image here</p>
+                    <p style="font-size: 0.85rem; color: var(--text-dim);">or click to browse</p>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
+                
+                <div class="preview-container empty" id="inputPreview">
+                    <span>No image loaded</span>
+                </div>
+                
+                <div class="info-grid" id="inputInfo" style="display: none;">
+                    <div class="info-item">
+                        <div class="info-label">Dimensions</div>
+                        <div class="info-value" id="inputDims">—</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Aspect Ratio</div>
+                        <div class="info-value" id="inputRatio">—</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title">📦 Output: Unfolded for Vendor</h2>
+                <div class="preview-container empty" id="outputPreview">
+                    <span>Generate unfolded version first</span>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" id="generateBtn" disabled>Generate Unfolded</button>
+                    <button class="btn btn-secondary" id="downloadBtn" disabled>Download 300 DPI</button>
+                </div>
+                
+                <div class="info-grid" id="outputInfo" style="display: none;">
+                    <div class="info-item">
+                        <div class="info-label">Physical Size</div>
+                        <div class="info-value">175 × 190 mm</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Print DPI</div>
+                        <div class="info-value">300 DPI</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Pixel Size</div>
+                        <div class="info-value" id="outputDims">—</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🔧 How It Works</h3>
+            <ol>
+                <li><strong>Upload:</strong> Drop in an image of how you want the folded mask to look (500×250px recommended)</li>
+                <li><strong>Generate:</strong> The app creates the unfolded pattern with accordion fold geometry (7 rows: visible rows 1,2,4,6,7 and hidden rows 3,5)</li>
+                <li><strong>Download:</strong> Get a print-ready 300 DPI file (2066×2244px for 175mm×190mm) to send to your vendor</li>
+                <li><strong>Print & Fold:</strong> When the vendor folds rows 3 and 5 under, your original design appears perfectly!</li>
+            </ol>
+        </div>
+    </div>
+    
+    <canvas id="canvas"></canvas>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const inputPreview = document.getElementById('inputPreview');
+        const outputPreview = document.getElementById('outputPreview');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let loadedImage = null;
+        let unfoldedImageData = null;
+        
+        // Upload zone interactions
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                loadImage(file);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                loadImage(file);
+            }
+        });
+        
+        function loadImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    loadedImage = img;
+                    displayInputImage(img);
+                    generateBtn.disabled = false;
+                    
+                    // Update input info
+                    document.getElementById('inputDims').textContent = `${img.width} × ${img.height}px`;
+                    document.getElementById('inputRatio').textContent = (img.width / img.height).toFixed(2);
+                    document.getElementById('inputInfo').style.display = 'grid';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function displayInputImage(img) {
+            inputPreview.innerHTML = '';
+            inputPreview.classList.remove('empty');
+            const displayImg = document.createElement('img');
+            displayImg.src = img.src;
+            inputPreview.appendChild(displayImg);
+        }
+        
+        generateBtn.addEventListener('click', generateUnfolded);
+        
+        function generateUnfolded() {
+            if (!loadedImage) return;
+            
+            // Fold pattern parameters
+            const totalRows = 7;
+            const visibleRows = [0, 1, 3, 5, 6]; // rows 1, 2, 4, 6, 7
+            const hiddenRows = [2, 4]; // rows 3, 5
+            
+            // Target dimensions for unfolded (matches vendor specs)
+            const unfoldedWidth = loadedImage.width;
+            const unfoldedHeight = Math.floor(loadedImage.width * 190 / 175); // Maintain 175:190 aspect ratio
+            
+            const rowHeight = Math.floor(unfoldedHeight / totalRows);
+            const visibleSectionHeight = Math.floor(loadedImage.height / visibleRows.length);
+            
+            // Create unfolded canvas
+            canvas.width = unfoldedWidth;
+            canvas.height = unfoldedHeight;
+            
+            // Sample background color from edges
+            ctx.drawImage(loadedImage, 0, 0);
+            const edgeData = ctx.getImageData(10, 10, 1, 1).data;
+            const bgColor = `rgb(${edgeData[0]}, ${edgeData[1]}, ${edgeData[2]})`;
+            
+            // Fill with background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, unfoldedWidth, unfoldedHeight);
+            
+            // Draw each row
+            for (let rowIdx = 0; rowIdx < totalRows; rowIdx++) {
+                const destY = rowIdx * rowHeight;
+                
+                if (visibleRows.includes(rowIdx)) {
+                    // Visible row - get from folded image
+                    const visibleIdx = visibleRows.indexOf(rowIdx);
+                    const sourceY = visibleIdx * visibleSectionHeight;
+                    const sourceHeight = Math.min(visibleSectionHeight, loadedImage.height - sourceY);
+                    
+                    ctx.drawImage(
+                        loadedImage,
+                        0, sourceY, loadedImage.width, sourceHeight,
+                        0, destY, unfoldedWidth, rowHeight
+                    );
+                } else {
+                    // Hidden row - mirror from above
+                    const mirrorSourceY = (rowIdx - 1) * rowHeight;
+                    
+                    // Get the row above
+                    const mirrorData = ctx.getImageData(0, mirrorSourceY, unfoldedWidth, rowHeight);
+                    
+                    // Flip it vertically
+                    const flipped = ctx.createImageData(unfoldedWidth, rowHeight);
+                    for (let y = 0; y < rowHeight; y++) {
+                        for (let x = 0; x < unfoldedWidth; x++) {
+                            const srcIdx = ((rowHeight - 1 - y) * unfoldedWidth + x) * 4;
+                            const destIdx = (y * unfoldedWidth + x) * 4;
+                            flipped.data[destIdx] = mirrorData.data[srcIdx];
+                            flipped.data[destIdx + 1] = mirrorData.data[srcIdx + 1];
+                            flipped.data[destIdx + 2] = mirrorData.data[srcIdx + 2];
+                            flipped.data[destIdx + 3] = mirrorData.data[srcIdx + 3];
+                        }
+                    }
+                    
+                    ctx.putImageData(flipped, 0, destY);
+                }
+            }
+            
+            // Display result
+            const resultImg = new Image();
+            resultImg.onload = () => {
+                outputPreview.innerHTML = '';
+                outputPreview.classList.remove('empty');
+                outputPreview.appendChild(resultImg);
+                
+                unfoldedImageData = canvas.toDataURL('image/png');
+                downloadBtn.disabled = false;
+                
+                // Show output info
+                document.getElementById('outputDims').textContent = `${canvas.width} × ${canvas.height}px`;
+                document.getElementById('outputInfo').style.display = 'grid';
+            };
+            resultImg.src = canvas.toDataURL('image/png');
+        }
+        
+        downloadBtn.addEventListener('click', () => {
+            if (!unfoldedImageData) return;
+            
+            // Create high-res 300 DPI version
+            const pixelsPerMM = 300 / 25.4;
+            const targetWidth = Math.floor(175 * pixelsPerMM); // 2066px
+            const targetHeight = Math.floor(190 * pixelsPerMM); // 2244px
+            
+            const img = new Image();
+            img.onload = () => {
+                const hiresCanvas = document.createElement('canvas');
+                hiresCanvas.width = targetWidth;
+                hiresCanvas.height = targetHeight;
+                const hiresCtx = hiresCanvas.getContext('2d');
+                
+                hiresCtx.drawImage(img, 0, 0, targetWidth, targetHeight);
+                
+                // Download
+                const link = document.createElement('a');
+                link.download = `mask-unfolded-300dpi-${Date.now()}.png`;
+                link.href = hiresCanvas.toDataURL('image/png');
+                link.click();
+            };
+            img.src = unfoldedImageData;
+        });
+    </script>
+</body>
+</html>

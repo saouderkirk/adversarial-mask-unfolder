@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Archives
+*.zip
+
+# Node modules (if needed later)
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+files/
